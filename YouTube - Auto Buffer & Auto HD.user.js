@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name          YouTube Auto Buffer & Auto HD
-// @namespace     http://userscripts.org/users/23652
+// @namespace     https://github.com/joesimmons
 // @description   Buffers the video without autoplaying and puts it in HD if the option is on. For Firefox, Opera, & Chrome
 // @icon          https://raw.github.com/joesimmons/YouTube---Auto-Buffer---Auto-HD/master/media/logo-64x64.png
 // @include       http://*.youtube.com/*
@@ -11,10 +11,9 @@
 // @author        JoeSimmons
 // @version       1.2.87
 // @license       GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
-// @require       http://userscripts.org/scripts/source/49700.user.js?name=GM_config
+// @require       https://raw.github.com/sizzlemctwizzle/GM_config/master/gm_config.js
 // @require       https://raw.github.com/joesimmons/jsl/master/versions/jsl-1.3.0.js
-// @require       http://userscripts.org/scripts/source/186053.user.js?name=YouTube_Button_Container
-//@require       http://usocheckup.dune.net/49366.js
+// @require       https://raw.github.com/joesimmons/YouTube_-_Button_Container_require/master/versions/YouTube_-_Button_Container_1.0.2.user.js
 // @grant         GM_info
 // @grant         GM_getValue
 // @grant         GM_log
