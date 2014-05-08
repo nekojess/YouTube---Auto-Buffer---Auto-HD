@@ -145,7 +145,7 @@
         // rYoutubeBlacklistedUrl = /^https?:\/\/([^\.]+\.)?youtube\.com\/(feed\/(?!subscriptions)|account|inbox|my_|tags|view_all|analytics)/i,
         rList = /[?&]list=/i,
         rPlaySymbol = /^\u25B6\s*/,
-        script_name = 'YouTube - Auto-Buffer & Auto-HD',
+        script_name = 'YouTube - Auto-Buffer &amp; Auto-HD',
         tTime = (URL.match(/[&#?]t=([sm0-9]+)/) || aBlank)[1],
         ads = [
             'supported_without_ads',
@@ -176,6 +176,41 @@
             'afv_video_min_cpm',
             'prefetch_ad_live_stream'
         ],
+        optionValues = {
+            activationModes : {
+                'Auto Buffer (aka Auto Pause)' : 'buffer',
+                'Auto Play' : 'play',
+                'Stop Loading Immediately' : 'none'},
+            qualities : {
+                'Automatic (default)' : 'default',
+                '144p' : 'tiny',
+                '240p' : 'small',
+                '360p' : 'medium',
+                '480p' : 'large',
+                '720p (HD)' : 'hd720',
+                '1080p (HD)' : 'hd1080',
+                '1440p (HD)' : 'hd1440',
+                'Original (highest)' : 'highres'},
+            volumes : {
+                'Don\'t Change' : '1000',
+                'Off' : '0',
+                '5%' : '5',
+                '10%' : '10',
+                '20%' : '20',
+                '25% (quarter)' : '25',
+                '30%' : '30',
+                '40%' : '40',
+                '50% (half)' : '50',
+                '60%' : '60',
+                '70%' : '70',
+                '75% (three quarters)' : '75',
+                '80%' : '80',
+                '90%' : '90',
+                '100% (full)' : '100'},
+            themes : {
+                'Dark Theme' : 'dark',
+                'Light Theme' : 'light'}
+        },
         hasMainBeenRun, nav, uw, wait_intv;
 
     function toNum(a) {
@@ -232,7 +267,7 @@
         } else {
             box.innerHTML += infoObject.text;
         }
-        
+
     }
 
     // will return true if the value is a primitive value
@@ -350,13 +385,13 @@
 
         // set up the user options object
         userOpts = {
-            activationMode    : GM_config.get('activationMode'),
+            activationMode    : optionValues.activationModes[GM_config.get('activationMode')],
             disableDash       : GM_config.get('disableDash') === true,
             hideAnnotations   : GM_config.get('hideAnnotations') === true,
             hideAds           : GM_config.get('hideAds') === true,
-            quality           : GM_config.get('autoHD'),
-            theme             : GM_config.get('theme'),
-            volume            : GM_config.get('volume')
+            quality           : optionValues.qualities[GM_config.get('autoHD')],
+            theme             : optionValues.themes[GM_config.get('theme')],
+            volume            : optionValues.volumes[GM_config.get('volume')]
         };
 
         // set up other variables
@@ -522,149 +557,154 @@
     }
 
     // init GM_config
-    GM_config.init('"' + script_name + '" Options', {
-        activationMode : {
-            section : ['Main Options'],
-            label : 'Activation Mode',
-            type : 'select',
-            options : {
-                'buffer' : 'Auto Buffer (aka Auto Pause)',
-                'play' : 'Auto Play',
-                'none' : 'Stop Loading Immediately'
+    GM_config.init(
+        { 'id' : 'yt-autobuffer-autohd',
+          'fields' : {
+            'activationMode' : {
+                'label' : 'Activation Mode',
+                'section' : ['Main Options'],
+                'type' : 'select',
+                'options' : [
+                    'Auto Buffer (aka Auto Pause)',
+                    'Auto Play',
+                    'Stop Loading Immediately'
+                ],
+                'default' : 'Auto Buffer (aka Auto Pause)'
             },
-            'default' : 'buffer'
-        },
-        autoHD : {
-            label : 'Auto HD',
-            type : 'select',
-            options : {
-                'default' : 'Automatic (default)',
-                'tiny' : '144p',
-                'small' : '240p',
-                'medium' : '360p',
-                'large' : '480p',
-                'hd720' : '720p (HD)',
-                'hd1080' : '1080p (HD)',
-                'hd1440' : '1440p (HD)',
-                'highres' : 'Original (highest)'
+            'autoHD' : {
+                'label' : 'Auto HD',
+                'type' : 'select',
+                'options' : [
+                    'Automatic (default)',
+                    '144p',
+                    '240p',
+                    '360p',
+                    '480p',
+                    '720p (HD)',
+                    '1080p (HD)',
+                    '1440p (HD)',
+                    'Original (highest)'
+                ],
+                'default' : '1080p (HD)'
             },
-            'default' : 'hd1080'
-        },
-        disableDash : {
-            label : 'Disable DASH Playback',
-            type : 'checkbox',
-            'default' : true,
-            title : '"DASH" loads the video in blocks/pieces; disrupts autobuffering -- Note: Qualities are limited when disabled'
-        },
-        hideAds : {
-            label : 'Disable Ads',
-            type : 'checkbox',
-            'default' : true,
-            title : 'Should disable advertisements. AdBlock is better, though. Get that instead'
-        },
-        hideAnnotations : {
-            label : 'Disable Annotations',
-            type : 'checkbox',
-            'default' : false
-        },
-        theme : {
-            section : ['Other Options'],
-            label : 'Player Color Scheme',
-            type : 'select',
-            options : {
-                'dark' : 'Dark Theme',
-                'light' : 'Light Theme'
+            'disableDash' : {
+                'label' : 'Disable DASH Playback',
+                'type' : 'checkbox',
+                'default' : true,
+                'title' : '"DASH" loads the video in blocks/pieces; disrupts autobuffering -- Note: Qualities are limited when disabled'
             },
-            'default' : 'dark'
-        },
-        volume : {
-            label : 'Set volume to: ',
-            type : 'select',
-            options : {
-                '1000' : 'Don\'t Change',
-                '0' : 'Off',
-                '5' : '5%',
-                '10' : '10%',
-                '20' : '20%',
-                '25' : '25% (quarter)',
-                '30' : '30%',
-                '40' : '40%',
-                '50' : '50% (half)',
-                '60' : '60%',
-                '70' : '70%',
-                '75' : '75% (three quarters',
-                '80' : '80%',
-                '90' : '90%',
-                '100' : '100% (full)',
+            'hideAds' : {
+                'label' : 'Disable Ads',
+                'type' : 'checkbox',
+                'default' : true,
+                'title' : 'Should disable advertisements. AdBlock is better, though. Get that instead'
             },
-            title : 'What to set the volume to',
-            'default' : '1000'
-        },
-        autoplayplaylists : {
-            label : 'Autoplay on Playlists (override)',
-            type : 'checkbox',
-            'default' : false,
-            title : 'This will enable autoplay on playlists, regardless of the "Activation Mode" option'
-        },
-        footer : {
-            label : 'Options Button In Footer',
-            type : 'checkbox',
-            'default' : false,
-            title : 'This will make the options button show at the bottom of the page in the footer'
-        }
-    }, '' +
-    'body { ' +
-        'background-color: #DDDDDD !important; ' +
-        'color: #434343 !important; ' +
-        'font-family: Arial, Verdana, sans-serif !important; ' +
-    '}' +
-    '#config_header { ' +
-        'font-size: 16pt !important; ' +
-    '}' +
-    '.config_var { ' +
-        'margin-left: 20% !important; ' +
-        'margin-top: 20px !important; ' +
-    '}' +
-    '#header { ' +
-        'margin-bottom: 40px !important; ' +
-        'margin-top: 20px !important; ' +
-    '}' +
-    '.indent40 { ' +
-        'margin-left: 20% !important; ' +
-    '}' + 
-    '.config_var * { ' +
-        'font-size: 10pt !important; ' +
-    '}' +
-    '.section_header_holder { ' +
-        'border-bottom: 1px solid #BBBBBB !important; ' +
-        'margin-top: 14px !important; ' +
-    '}' +
-    '.section_header { ' +
-        'background-color: #BEDBFF !important; ' +
-        'color: #434343 !important; ' +
-        'margin-left: 20% !important; ' +
-        'margin-top: 8px !important; ' +
-        'padding: 2px 200px !important; ' +
-        'text-decoration: none !important; ' +
-    '}' +
-    '.section_kids { ' +
-        'margin-bottom: 14px !important; ' +
-    '}' +
-    '.saveclose_buttons { ' +
-        'font-size: 14pt !important; ' +
-    '}' +
-    '#buttons_holder { ' +
-        'padding-right: 50px; ' +
-    '}' +
-    '', {
-        close : function () {
-            JSL('#c4-player, #movie_player').css('visibility', 'visible');
-            JSL('#lights_out').hide();
-        },
-        open : function () {
-            JSL('#c4-player, #movie_player').css('visibility', 'hidden');
-            JSL('#lights_out').show('block');
-            JSL('#GM_config').css('height', '80%').css('width', '80%');
+            'hideAnnotations' : {
+                'label' : 'Disable Annotations',
+                'type' : 'checkbox',
+                'default' : false
+            },
+            'theme' : {
+                'section' : ['Other Options'],
+                'label' : 'Player Color Scheme',
+                'type' : 'select',
+                'options' : [
+                    'Dark Theme',
+                    'Light Theme'
+                ],
+                'default' : 'Dark Theme'
+            },
+            'volume' : {
+                'label' : 'Set volume to: ',
+                'type' : 'select',
+                'options' : [
+                    'Don\'t Change',
+                    'Off',
+                    '5%',
+                    '10%',
+                    '20%',
+                    '25% (quarter)',
+                    '30%',
+                    '40%',
+                    '50% (half)',
+                    '60%',
+                    '70%',
+                    '75% (three quarters)',
+                    '80%',
+                    '90%',
+                    '100% (full)'
+                ],
+                'title' : 'What to set the volume to',
+                'default' : '100% (full)'
+            },
+            'autoplayplaylists' : {
+                'label' : 'Autoplay on Playlists (override)',
+                'type' : 'checkbox',
+                'default' : false,
+                'title' : 'This will enable autoplay on playlists, regardless of the "Activation Mode" option'
+            },
+            'footer' : {
+                'label' : 'Options Button In Footer',
+                'type' : 'checkbox',
+                'default' : false,
+                'title' : 'This will make the options button show at the bottom of the page in the footer'
+            }
+          },
+        'css' :
+          'body { ' +
+              'background-color: #DDDDDD !important; ' +
+              'color: #434343 !important; ' +
+              'font-family: Arial, Verdana, sans-serif !important; ' +
+          '}' +
+          '.config_header { ' +
+              'font-size: 16pt !important; ' +
+          '}' +
+          '.config_var { ' +
+              'margin-left: 20% !important; ' +
+              'margin-top: 20px !important; ' +
+          '}' +
+          '#header { ' +
+              'margin-bottom: 40px !important; ' +
+              'margin-top: 20px !important; ' +
+          '}' +
+          '.indent40 { ' +
+              'margin-left: 20% !important; ' +
+          '}' +
+          '.config_var * { ' +
+              'font-size: 10pt !important; ' +
+          '}' +
+          '.section_header_holder { ' +
+              'border-bottom: 1px solid #BBBBBB !important; ' +
+              'margin-top: 14px !important; ' +
+          '}' +
+          '.section_header { ' +
+              'background-color: #BEDBFF !important; ' +
+              'color: #434343 !important; ' +
+              'margin-left: 20% !important; ' +
+              'margin-top: 8px !important; ' +
+              'padding: 2px 200px !important; ' +
+              'text-decoration: none !important; ' +
+          '}' +
+          '.section_kids { ' +
+              'margin-bottom: 14px !important; ' +
+          '}' +
+          '.saveclose_buttons { ' +
+              'font-size: 14pt !important; ' +
+          '}' +
+          '#buttons_holder { ' +
+              'padding-right: 50px; ' +
+          '}',
+        'events' : {
+            'close' : function () {
+                JSL('#c4-player, #movie_player').css('visibility', 'visible');
+                JSL('#lights_out').hide();
+            },
+            'open' : function () {
+                JSL('#c4-player, #movie_player').css('visibility', 'hidden');
+                JSL('#lights_out').show('block');
+                JSL('#GM_config').css('height', '80%').css('width', '80%');
+                JSL('#yt-autobuffer-autohd').css('z-index', '9999999');
+            }
         }
     });
 
